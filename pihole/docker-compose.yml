@@ -5,11 +5,11 @@ services:
     container_name: pihole
     image: pihole/pihole:latest
     ports:
-      - 53:53
-      - 7067:67/udp
+      - 53:53/tcp
+      - 53:53/udp
       - 7080:80/tcp
     environment:
-      - TZ='America/Chicago'
+      - TZ='Asia/Calcutta'
       - WEBPASSWORD=password
     # Volumes store your data between container upgrades
     volumes:
