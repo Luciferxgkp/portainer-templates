@@ -9,7 +9,7 @@ services:
 	  - PGID=1000
 	  - VERSION=docker
 	volumes:
-	  - /home/pi4/Documents/Config:/config
-	  - /home/pi4/Documents/TV:/tv
-	  - /home/pi4/Documents/Movies:/movies
+	  - /home/pi5/Documents/Config:/config
+	  - /home/pi5/Documents/TV:/tv
+	  - /home/pi5/Documents/Movies:/movies
 	restart: unless-stopped
