@@ -5,9 +5,9 @@ services:
 	container_name: pihole
 	image: pihole/pihole:latest
 	ports:
-	  - "7053:53"
-	  - "7067:67/udp"
-	  - "7080:80/tcp"
+	  - 7053:53
+	  - 7067:67/udp
+	  - 7080:80/tcp
 	environment:
 	  - TZ=Kolkata/India
 	  - WEBPASSWORD=password
