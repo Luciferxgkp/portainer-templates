@@ -9,7 +9,7 @@ services:
       - 7067:67/udp
       - 7080:80/tcp
     environment:
-      - TZ=Kolkata/India
+      - TZ='America/Chicago'
       - WEBPASSWORD=password
     # Volumes store your data between container upgrades
     volumes:
