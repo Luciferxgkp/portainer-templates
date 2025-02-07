@@ -6,22 +6,23 @@ services:
     restart: always
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     volumes:
-      - /var/lib/docker/volumes/Nextcloud_Database:/var/lib/mysql
+      - /home/pi/nextcloud_db:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_PASSWORD=password
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
 
-  app:
+  nextcloud:
     image: nextcloud
     restart: always
     ports:
       - 8080:80
-    links:
+    depends_on:
       - db
     volumes:
-      - /var/lib/docker/volumes/Nextcloud_Application:/var/www/html
+      - /home/pi/nextcloud_data:/var/www/html/data  # Mount Nextcloud data to host
+      - /home/pi/nextcloud_app:/var/www/html  # Mount application data
     environment:
       - MYSQL_PASSWORD=password
       - MYSQL_DATABASE=nextcloud

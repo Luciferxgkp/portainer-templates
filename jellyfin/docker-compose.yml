@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  jellyfin:
+    image: jellyfin/jellyfin
+    restart: always
+    ports:
+      - 8096:8096  # Web interface
+      - 8920:8920  # HTTPS (optional)
+    environment:
+      - TZ=Asia/Kolkata  # Set your timezone
+    volumes:
+      - jellyfin_config:/config
+      - jellyfin_cache:/cache
+      - /home/pi/nextcloud_data/lucifer/files/Movies:/media/movies:ro  # Mount Nextcloud uploads
+    networks:
+      - jellyfin_network
+
+networks:
+  jellyfin_network:
+
+volumes:
+  jellyfin_config:
+  jellyfin_cache:
