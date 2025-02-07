@@ -12,7 +12,7 @@ services:
     volumes:
       - jellyfin_config:/config
       - jellyfin_cache:/cache
-      - /home/pi/nextcloud_data/lucifer/files/Movies:/media/movies:ro  # Mount Nextcloud uploads
+      - /home/pi/nextcloud_data/admin/files/Movies:/media/movies:ro
     networks:
       - jellyfin_network
 
