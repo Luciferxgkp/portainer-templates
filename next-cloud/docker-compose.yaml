@@ -1,30 +1,40 @@
-version: '2'
+version: '3.8'
 
 services:
   db:
     image: mariadb:10.5
-    restart: always
+    container_name: nextcloud_db
+    restart: unless-stopped
     command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
     volumes:
-      - /home/pi/nextcloud_db:/var/lib/mysql
+      - /mnt/nas/db:/var/lib/mysql  # Store database on external HDD
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_PASSWORD=password
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
+    networks:
+      - nextcloud_network
 
   nextcloud:
     image: nextcloud
-    restart: always
-    ports:
-      - 8080:80
+    container_name: nextcloud_app
+    restart: unless-stopped
     depends_on:
       - db
+    ports:
+      - 8080:80
     volumes:
-      - /home/pi/nextcloud_data:/var/www/html/data  # Mount Nextcloud data to host
-      - /home/pi/nextcloud_app:/var/www/html  # Mount application data
+      - /mnt/nas/data:/var/www/html/data  # Nextcloud user data on HDD
+      - /mnt/nas/app:/var/www/html  # Application data on HDD
     environment:
       - MYSQL_PASSWORD=password
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_HOST=db
+    networks:
+      - nextcloud_network
+
+networks:
+  nextcloud_network:
+    driver: bridge

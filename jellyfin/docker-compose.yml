@@ -3,21 +3,23 @@ version: '3.8'
 services:
   jellyfin:
     image: jellyfin/jellyfin
-    restart: always
+    container_name: jellyfin_server
+    restart: unless-stopped
     ports:
       - 8096:8096  # Web interface
       - 8920:8920  # HTTPS (optional)
     environment:
       - TZ=Asia/Kolkata  # Set your timezone
     volumes:
-      - jellyfin_config:/config
-      - jellyfin_cache:/cache
-      - /home/pi/nextcloud_data/admin/files/Movies:/media/movies:ro
+      - jellyfin_config:/config  # Config storage on external HDD
+      - jellyfin_cache:/cache    # Cache storage on external HDD
+      - /mnt/nas/data/admin/files/Movies:/media/movies:ro  # Updated to new HDD path
     networks:
       - jellyfin_network
 
 networks:
   jellyfin_network:
+    driver: bridge
 
 volumes:
   jellyfin_config:
