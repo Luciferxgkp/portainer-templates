@@ -30,6 +30,7 @@ services:
     volumes:
       - radarr_config:/config
       - /mnt/nas/data/admin/files/Movies:/movies  # Movies folder
+      - /mnt/nas/data/admin/files/Movies:/downloads  # Movies folder
     networks:
       - media_network
     depends_on:
@@ -47,6 +48,7 @@ services:
       - TZ=Asia/Kolkata
     volumes:
       - sonarr_config:/config
+      - /mnt/nas/data/admin/files/Movies:/downloads  # Movies folder
       - /mnt/nas/data/admin/files/Movies:/movies  # Movies folder
     networks:
       - media_network
@@ -84,7 +86,7 @@ services:
       - USER=admin
       - PASS=lucifer
     volumes:
-      - /mnt/nas/qbittorrent/config:/config
+      - /mnt/nas/transmission/config:/config
       - /mnt/nas/data/admin/files/Movies:/downloads  # Movies folder
     networks:
       - media_network
