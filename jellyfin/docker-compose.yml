@@ -9,7 +9,7 @@ services:
       - 8096:8096  # Web interface
       - 8920:8920  # HTTPS (optional)
     environment:
-      - TZ=Asia/Kolkata  # Set your timezone
+      - TZ=Asia/Kolkata
     volumes:
       - jellyfin_config:/config
       - jellyfin_cache:/cache
@@ -29,11 +29,11 @@ services:
       - TZ=Asia/Kolkata
     volumes:
       - radarr_config:/config
-      - /mnt/nas/data/admin/files/Movies:/movies  # All media goes here
+      - /mnt/nas/data/admin/files/Movies:/movies  # Movies folder
     networks:
       - media_network
     depends_on:
-      - qbittorrent
+      - transmission
 
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
@@ -47,11 +47,11 @@ services:
       - TZ=Asia/Kolkata
     volumes:
       - sonarr_config:/config
-      - /mnt/nas/data/admin/files/Movies:/movies  # All media goes here
+      - /mnt/nas/data/admin/files/Movies:/movies  # Movies folder
     networks:
       - media_network
     depends_on:
-      - qbittorrent
+      - transmission
 
   jackett:
     image: lscr.io/linuxserver/jackett:latest
@@ -65,25 +65,27 @@ services:
       - TZ=Asia/Kolkata
     volumes:
       - jackett_config:/config
+      - /mnt/nas/data/admin/files/Jackett:/downloads  # Store indexer results
     networks:
       - media_network
 
-  qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
-    container_name: qbittorrent
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: transmission
     restart: unless-stopped
     ports:
-      - 8081:8080  # Changed from 8080 to avoid Nextcloud conflict
-      - 6881:6881
-      - 6881:6881/udp
+      - 9091:9091  # Web UI
+      - 51413:51413  # Torrent TCP
+      - 51413:51413/udp  # Torrent UDP
     environment:
       - PUID=1000
       - PGID=1003
       - TZ=Asia/Kolkata
-      - WEBUI_PORT=8081
+      - USER=admin
+      - PASS=lucifer
     volumes:
-      - qbittorrent_config:/config
-      - /mnt/nas/data/admin/files/Movies:/movies  # All downloads go here
+      - /mnt/nas/qbittorrent/config:/config
+      - /mnt/nas/data/admin/files/Movies:/downloads  # Movies folder
     networks:
       - media_network
 
