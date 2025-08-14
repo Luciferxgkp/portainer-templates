@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  database:
+    image: postgres:13-alpine  # Lightweight Alpine version for better ARM performance
+    container_name: directus-database
+    restart: unless-stopped
+    volumes:
+      - directus_db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "directus"
+      POSTGRES_PASSWORD: "your_secure_db_password_here"
+      POSTGRES_DB: "directus"
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -U directus -d directus"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 60s  # Extended time for ARM initialization
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
+    networks:
+      - directus_network
+
+  cache:
+    image: redis:7-alpine
+    container_name: directus-cache
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 64M
+    networks:
+      - directus_network
+
+  directus:
+    image: directus/directus:11.5.1
+    container_name: directus-app
+    restart: unless-stopped
+    ports:
+      - "8055:8055"  # Using 8055 to avoid conflicts with your existing services
+    volumes:
+      - directus_uploads:/directus/uploads
+      - directus_extensions:/directus/extensions
+    depends_on:
+      database:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    environment:
+      # Security
+      SECRET: "your-very-secure-secret-key-min-32-chars"
+      KEY: "your-encryption-key-exactly-32-chars"
+      
+      # Database Configuration
+      DB_CLIENT: "pg"
+      DB_HOST: "database"
+      DB_PORT: "5432"
+      DB_DATABASE: "directus"
+      DB_USER: "directus"
+      DB_PASSWORD: "your_secure_db_password_here"
+      
+      # Cache Configuration
+      CACHE_ENABLED: "true"
+      CACHE_STORE: "redis"
+      REDIS: "redis://cache:6379"
+      
+      # Admin Account Setup
+      ADMIN_EMAIL: "admin@yourdomain.com"
+      ADMIN_PASSWORD: "your_secure_admin_password"
+      
+      # Application Configuration
+      PUBLIC_URL: "http://your-pi-ip:8055"  # Replace with your Pi's IP
+      
+      # Performance Optimizations for Pi
+      MAX_PAYLOAD_SIZE: "50mb"
+      RATE_LIMITER_ENABLED: "true"
+      RATE_LIMITER_STORE: "redis"
+      RATE_LIMITER_REDIS: "redis://cache:6379"
+      
+      # File Storage
+      STORAGE_LOCATIONS: "local"
+      STORAGE_LOCAL_ROOT: "/directus/uploads"
+      
+      # Email Configuration (optional - configure if you need email features)
+      EMAIL_FROM: "noreply@yourdomain.com"
+      EMAIL_TRANSPORT: "smtp"
+      # EMAIL_SMTP_HOST: "smtp.gmail.com"
+      # EMAIL_SMTP_PORT: "587"
+      # EMAIL_SMTP_USER: "your-email@gmail.com"
+      # EMAIL_SMTP_PASSWORD: "your-app-password"
+      
+      # Security Headers
+      CORS_ENABLED: "true"
+      CORS_ORIGIN: "true"
+      
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+    networks:
+      - directus_network
+
+volumes:
+  directus_db_data:
+    driver: local
+  directus_uploads:
+    driver: local
+  directus_extensions:
+    driver: local
+
+networks:
+  directus_network:
+    driver: bridge
