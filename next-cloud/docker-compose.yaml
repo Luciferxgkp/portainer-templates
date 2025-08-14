@@ -32,7 +32,12 @@ services:
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
       - MYSQL_HOST=db
+      # Trusted domains for local + Cloudflare Tunnel
       - NEXTCLOUD_TRUSTED_DOMAINS=localhost pi.local pageinnovator.in nextcloud.pageinnovator.in
+      # Force correct public URL handling
+      - NEXTCLOUD_OVERWRITEHOST=nextcloud.pageinnovator.in
+      - NEXTCLOUD_OVERWRITEPROTOCOL=https
+      - NEXTCLOUD_OVERWRITECLIURL=https://nextcloud.pageinnovator.in
     networks:
       - nextcloud_network
 
